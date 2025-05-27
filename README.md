@@ -26,7 +26,7 @@ Files are managed via project-files.json or a PHP array defined in the script’
 
   --help     displays the help file
 
-  --o        Output file to new location (e.g., C:\Users\User\Desktop)
+  --o        output file to new location (e.g., C:\Users\User\Desktop)
 
 ## Usage:
 

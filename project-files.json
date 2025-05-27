@@ -1,0 +1,5 @@
+[
+    "readme.md",
+    "resources/views/welcome.blade.php",
+    "routes/web.php"
+]

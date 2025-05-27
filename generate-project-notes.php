@@ -7,60 +7,76 @@ $version = "1.0.0 beta";
 
 $helpText = <<<HELP
 
-Generate Project Notes:
+            Generate Project Notes:
 
-A tool to combine various Laravel files into a single text file (project-notes.txt)
-which can be uploaded to an AI assistant (e.g., Grok, Co-Pilot, or Perplexity.ai)
-to provide an overview of the project without manually copying / pasting code each time.
+            A tool to combine various Laravel files into a single text file (project-notes.txt)
+            which can be uploaded to an AI assistant (e.g., Grok, Co-Pilot, or Perplexity.ai)
+            to provide an overview of the project without manually copying / pasting code each time.
 
-Files are managed via project-files.json or a PHP array defined in the script’s loadFiles() function.
+            Files are managed via project-files.json or a PHP array defined in the script’s loadFiles() function.
 
-Flags:
+            Flags:
 
-  --d        add a timestamp to the file or archive filename
-  --size     display filesize after generation
-  --zip      produce a zip archive of the text file
-  --list     show a list of files which are included in the output
-  --add      add a file (include full path)
-  --remove   remove a file (include full path)
-  --version  shows version information
-  --help     displays the help file
+            --d        date flag - adds a timestamp to the file or archive filename
+            --size     display filesize after generation
+            --zip      produce a zip archive of the text file
+            --list     show a list of files which are included in the output
+            --add      add a file (include full path)
+            --remove   remove a file (include full path)
+            --version  shows version information
+            --help     displays the help file
+            --clean    removes all .txt and .zip files from /tools directory
+            --o        output project-notes.txt file to a new location (e.g., C:\Users\User\Desktop)
 
-Usage:
+            Usage:
 
-  php .\generate-project-notes.php --version
-    - Displays version information
-  php .\generate-project-notes.php --help
-    - Displays the program help info  
-  php .\generate-project-notes.php
-    - Generates project-notes.txt with the current file list.
-    - Creates project-files.json if it doesn't exist.
-  php .\generate-project-notes.php --d
-    - Generates a timestamped file (e.g., project-notes-05-27-2025T12-03-00.txt).
-  php .\generate-project-notes.php --size
-    - Shows the size of the output file in KB.
-  php .\generate-project-notes.php --zip
-    - Creates a ZIP archive (e.g., project-notes.zip) containing the text file.
-  php .\generate-project-notes.php --list
-    - Lists files in project-files.json (or defaults if no JSON file).
-  php .\generate-project-notes.php --add "path/to/file"
-    - Adds a file to project-files.json (e.g., --add "app/Models/User.php").
-  php .\generate-project-notes.php --remove "path/to/file"
-    - Removes a file from project-files.json (e.g., --remove "readme.md").
+            php .\generate-project-notes.php --version
+                - Displays version information
 
-Examples:
+            php .\generate-project-notes.php --help
+                - Displays the program help info  
+                
+            php .\generate-project-notes.php
+                - Generates project-notes.txt with the current file list.
+                - Creates project-files.json if it doesn't exist.
 
-  php .\generate-project-notes.php --d --size
-    - Creates a timestamped project-notes-05-27-2025T12-03-00.txt and shows its size.
-  php .\generate-project-notes.php --zip --d
-    - Creates a timestamped text file and ZIP (e.g., project-notes-05-27-2025T12-03-00.zip).
-  php .\generate-project-notes.php --add "app/Http/Controllers/HomeController.php"
-    - Adds HomeController.php to the file list for future runs
-  php .\generate-project-notes.php --remove "README.md"
-    - Removes README.md from the file list for future runs
+            php .\generate-project-notes.php --d
+                - Generates a timestamped file (e.g., project-notes-05-27-2025T12-03-00.txt).
+
+            php .\generate-project-notes.php --size
+                - Shows the size of the output file in KB.
+
+            php .\generate-project-notes.php --zip
+                - Creates a ZIP archive (e.g., project-notes.zip) containing the text file.
+
+            php .\generate-project-notes.php --list
+                - Lists files in project-files.json (or defaults if no JSON file).
+
+            php .\generate-project-notes.php --add "path/to/file"
+                - Adds a file to project-files.json (e.g., --add "app/Models/User.php").
+
+            php .\generate-project-notes.php --remove "path/to/file"
+                - Removes a file from project-files.json (e.g., --remove "readme.md").
+
+            php .\generate-project-notes.php --o "C:\Users\User\Desktop"
+                - Output project-notes.txt file to a new location (e.g., C:\Users\User\Desktop).    
+
+            Examples:
+
+            php .\generate-project-notes.php --d --size
+                - Creates a timestamped project-notes-05-27-2025T12-03-00.txt and shows its size.
+
+            php .\generate-project-notes.php --zip --d
+                - Creates a timestamped text file and ZIP (e.g., project-notes-05-27-2025T12-03-00.zip).
+
+            php .\generate-project-notes.php --add "app/Http/Controllers/HomeController.php"
+                - Adds HomeController.php to the file list for future runs
+
+            php .\generate-project-notes.php --remove "README.md"
+                - Removes README.md from the file list for future runs
 
 
-HELP;
+    HELP;
 
 // Define constants
 define('CONFIG_FILE', __DIR__ . '/project-files.json'); // Store config in /tools
@@ -129,19 +145,42 @@ function resolvePath($file) {
     return normalizePath(PROJECT_ROOT . $file);
 }
 
-// Generate the output text file
-function generateOutputFile($files, $useDate) {
-    $date = $useDate ? date('m-d-Y\TH-i-s') : ''; // e.g., 05-27-2025T12-03-00
-    $outputFile = DEFAULT_OUTPUT;
-    if ($useDate) {
-        $parts = pathinfo(DEFAULT_OUTPUT);
-        $outputFile = $parts['dirname'] . DIRECTORY_SEPARATOR . $parts['filename'] . '-' . $date . '.' . $parts['extension'];
-    }
+// Parse command-line options
+$options = getopt('', ['zip', 'd', 'size', 'list', 'add:', 'remove:','help', 'version', 'clean','o:']);
+$files = loadFiles();
 
+// ----------- CHANGES START HERE -----------
+
+// Set output directory (default: script directory)
+$outputDir = __DIR__;
+if (isset($options['o'])) {
+    $outputDir = rtrim($options['o'], DIRECTORY_SEPARATOR);
+    if (!is_dir($outputDir)) {
+        echo "Error: Output directory does not exist: $outputDir\n";
+        exit(1);
+    }
+}
+
+// Set filename based on --d flag
+$useDate = isset($options['d']);
+if ($useDate) {
+    $timestamp = date('m-d-Y\TH-i-s');
+    $filename = "project-notes-$timestamp.txt";
+} else {
+    $filename = "project-notes.txt";
+}
+
+// Build full output path
+$outputPath = $outputDir . DIRECTORY_SEPARATOR . $filename;
+
+// ----------- CHANGES END HERE -----------
+
+// Generate the output text file
+function generateOutputFile($files, $useDate, $outputPath) {
     $output = '';
     foreach ($files as $file) {
         $fullPath = resolvePath($file);
-        $displayPath = normalizePath($file); // Use relative path
+        $displayPath = normalizePath($file);
         $output .= "--------------------------------------------------\n";
         $output .= "$displayPath\n";
         $output .= "--------------------------------------------------\n\n";
@@ -152,15 +191,13 @@ function generateOutputFile($files, $useDate) {
             $output .= "[File not found]\n\n";
         }
     }
-
-    file_put_contents($outputFile, $output);
+    file_put_contents($outputPath, $output);
 
     // Save the file list to project-files.json if it doesn't exist
     if (!file_exists(CONFIG_FILE)) {
         saveFiles($files);
     }
-
-    return $outputFile;
+    return $outputPath;
 }
 
 // Create a ZIP archive of the output file
@@ -182,10 +219,6 @@ function getFileSizeKB($file): float {
     }
     return 0.0;
 }
-
-// Parse command-line options
-$options = getopt('', ['zip', 'd', 'size', 'list', 'add:', 'remove:','help', 'version']);
-$files = loadFiles();
 
 // Handle --add
 if (isset($options['add'])) {
@@ -210,6 +243,51 @@ if (isset($options['help'])) {
 if (isset($options['version'])) {
     echo "\nGenerate Project Notes version: " . $version . "\n";
     echo "created 5/27/25 by ken@kendawson.online\n\n";
+    exit;
+}
+
+// Handle --clean
+if (isset($options['clean'])) {
+    $dir = __DIR__;
+    $keep = [
+        'generate-project-notes.php',
+        'project-files.json'
+    ];
+
+    // Find all .txt and .zip files in the directory
+    $filesToDelete = [];
+    foreach (scandir($dir) as $file) {
+        if (
+            !in_array($file, $keep) &&
+            (preg_match('/\.txt$/i', $file) || preg_match('/\.zip$/i', $file)) &&
+            is_file($dir . DIRECTORY_SEPARATOR . $file)
+        ) {
+            $filesToDelete[] = $file;
+        }
+    }
+
+    if (empty($filesToDelete)) {
+        echo "No generated .txt or .zip files to remove.\n";
+        exit;
+    }
+
+    echo "The following files will be deleted:\n";
+    foreach ($filesToDelete as $file) {
+        echo "  - $file\n";
+    }
+    echo "Are you sure you want to remove all these files? (y/n): ";
+    $handle = fopen ("php://stdin","r");
+    $line = fgets($handle);
+    if(trim(strtolower($line)) != 'y'){
+        echo "Aborted.\n";
+        exit;
+    }
+    fclose($handle);
+
+    foreach ($filesToDelete as $file) {
+        unlink($dir . DIRECTORY_SEPARATOR . $file);
+    }
+    echo "Deleted " . count($filesToDelete) . " files.\n";
     exit;
 }
 
@@ -242,8 +320,7 @@ if (isset($options['list'])) {
 
 // Generate the output file
 echo "Generating Project Notes...\n";
-$useDate = isset($options['d']);
-$outputFile = generateOutputFile($files, $useDate);
+$outputFile = generateOutputFile($files, $useDate, $outputPath);
 
 // Prepare summary
 $summary = "Processed " . count($files) . " files in list.\n";
@@ -266,9 +343,7 @@ if (isset($options['zip'])) {
 }
 
 // Add timestamp to summary
-$summary .= "Last ran at: " . date('m-d-Y\TH-i-s') . "\n";
-
-// Output summary
+$summary .= "Last ran at: " . date('m-d-Y\TH-i-s') . "\n"; // Output summary
 echo $summary;
 
 // Functions

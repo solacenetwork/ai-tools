@@ -68,7 +68,7 @@ Files are managed via project-files.json or a PHP array defined in the script’
 
     - Removes a file from project-files.json (e.g., --remove "readme.md").
 
-  php .\generate-project-notes.php --o "path/to/file"
+  php .\generate-project-notes.php --o "C:\Users\User\Desktop"
 
     - Output project-notes.txt file to a new location (e.g., C:\Users\User\Desktop)   
 

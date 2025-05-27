@@ -1,5 +1,7 @@
 # Generate Project Notes
 
+**Version 1.0.0 beta**
+
 A tool to combine various Laravel files into a single text file (project-notes.txt)
 which can be uploaded to an AI assistant (e.g., Grok, Co-Pilot, or Perplexity.ai)
 to provide an overview of the project without manually copying / pasting code each time.

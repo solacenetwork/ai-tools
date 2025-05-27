@@ -26,6 +26,8 @@ Files are managed via project-files.json or a PHP array defined in the script’
 
   --help     displays the help file
 
+  --o        Output file to new location (e.g., C:\Users\User\Desktop)
+
 ## Usage:
 
   php .\generate-project-notes.php --version
@@ -65,6 +67,10 @@ Files are managed via project-files.json or a PHP array defined in the script’
   php .\generate-project-notes.php --remove "path/to/file"
 
     - Removes a file from project-files.json (e.g., --remove "readme.md").
+
+  php .\generate-project-notes.php --o "path/to/file"
+
+    - Output project-notes.txt file to a new location (e.g., C:\Users\User\Desktop)   
 
 ## Examples:
 

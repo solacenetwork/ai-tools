@@ -149,8 +149,6 @@ function resolvePath($file) {
 $options = getopt('', ['zip', 'd', 'size', 'list', 'add:', 'remove:','help', 'version', 'clean','o:']);
 $files = loadFiles();
 
-// ----------- CHANGES START HERE -----------
-
 // Set output directory (default: script directory)
 $outputDir = __DIR__;
 if (isset($options['o'])) {
@@ -172,8 +170,6 @@ if ($useDate) {
 
 // Build full output path
 $outputPath = $outputDir . DIRECTORY_SEPARATOR . $filename;
-
-// ----------- CHANGES END HERE -----------
 
 // Generate the output text file
 function generateOutputFile($files, $useDate, $outputPath) {

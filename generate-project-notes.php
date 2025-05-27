@@ -82,7 +82,7 @@ function loadFiles() {
         'composer.json',
         'vite.config.js',
         'tailwind.config.js',
-        'routes/web.php',
+        'routes\web.php',
         'app\Providers\AppServiceProvider.php',
         'app\Providers\FortifyServiceProvider.php',
         'app\Providers\RouteServiceProvider.php',

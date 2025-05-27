@@ -339,7 +339,9 @@ if (isset($options['zip'])) {
 }
 
 // Add timestamp to summary
-$summary .= "Last ran at: " . date('m-d-Y\TH-i-s') . "\n"; // Output summary
+$summary .= "Last ran at: " . date('m-d-Y\TH-i-s') . "\n"; 
+
+// Output summary
 echo $summary;
 
 // Functions

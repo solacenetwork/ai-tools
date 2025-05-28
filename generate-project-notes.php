@@ -95,6 +95,7 @@ function loadFiles() {
     return [
         '.env',
         'README.md',
+        'db-schema.sql',
         'composer.json',
         'vite.config.js',
         'tailwind.config.js',
